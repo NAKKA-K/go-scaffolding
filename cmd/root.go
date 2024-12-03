@@ -11,7 +11,8 @@ import (
 
 type Config struct {
 	Run struct {
-		TemplateDir string `mapstructure:"template-dir"`
+		TemplateDir string            `mapstructure:"template-dir"`
+		Output      map[string]string `mapstructure:"output"`
 	}
 }
 

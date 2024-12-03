@@ -51,8 +51,10 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 
 	// テンプレートに埋め込むためのデータサンプル
 	data := map[string]interface{}{
-		"Title":   "Example Title",
-		"Content": "This is an example content.",
+		"SnakeResource":      "",
+		"ConnectionResource": "",
+		"PascalResource":     "",
+		"CamelResource":      "",
 	}
 
 	// テンプレートを実行して標準出力に書き出す
