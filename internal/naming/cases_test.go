@@ -1,0 +1,177 @@
+package naming
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func ptrSnakeCaseName(s string) *SnakeCaseName {
+	n := SnakeCaseName(s)
+	return &n
+}
+
+func TestIsValidSnakeCase_NoErr(t *testing.T) {
+	tests := []struct {
+		s string
+	}{
+		{
+			s: "valid_snake_case", // Normal SnakeCase
+		},
+		{
+			s: "validsnakecase", // No underscores
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.s, func(t *testing.T) {
+			ok := IsValidSnakeCase(tt.s)
+			assert.True(t, ok)
+		})
+	}
+}
+
+func TestIsValidSnakeCase_Err(t *testing.T) {
+	tests := []struct {
+		s string
+	}{
+		{
+			s: "invalid__case", // Consecutive underscores
+		},
+		{
+			s: "_invalid_start", // Leading underscore
+		},
+		{
+			s: "invalid_end_", // Trailing underscore
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.s, func(t *testing.T) {
+			ok := IsValidSnakeCase(tt.s)
+			assert.False(t, ok)
+		})
+	}
+}
+
+func TestNewSnakeCaseName(t *testing.T) {
+	tests := []struct {
+		s    string
+		want *SnakeCaseName
+		err  error
+	}{
+		{
+			s:    "snake_case",
+			want: ptrSnakeCaseName("snake_case"),
+			err:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.s, func(t *testing.T) {
+			n, err := NewSnakeCaseName(tt.s)
+			assert.Equal(t, n, tt.want)
+			assert.Equal(t, err, tt.err)
+		})
+	}
+}
+
+func TestSnakeCaseName_CamelCase(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "camel_case",
+			want: "camelCase",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := SnakeCaseName(tt.name)
+			if got := n.CamelCase(); got != tt.want {
+				t.Errorf("Name.CamelCase() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSnakeCaseName_PascalCase(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "pascal_case",
+			want: "PascalCase",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := SnakeCaseName(tt.name)
+			if got := n.PascalCase(); got != tt.want {
+				t.Errorf("Name.PascalCase() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSnakeCaseName_ConnectionCase(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "connection_case",
+			want: "connectioncase",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := SnakeCaseName(tt.name)
+			if got := n.ConnectionCase(); got != tt.want {
+				t.Errorf("Name.ConnectionCase() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSnakeCaseName_ConstantCase(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "constant_case",
+			want: "CONSTANT_CASE",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := SnakeCaseName(tt.name)
+			if got := n.ConstantCase(); got != tt.want {
+				t.Errorf("Name.ConstantCase() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSnakeCaseName_KebabCase(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "kebab_case",
+			want: "kebab-case",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := SnakeCaseName(tt.name)
+			if got := n.KebabCase(); got != tt.want {
+				t.Errorf("Name.KebabCase() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
