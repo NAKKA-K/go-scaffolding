@@ -3,25 +3,33 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+type Config struct {
+	Run struct {
+		TemplateDir string `mapstructure:"template-dir"`
+	}
+}
+
+var config Config
+
+// flags
+var (
+	cfgFile string
+	verbose bool
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "go-scaffolding",
 	Short: "'go-scaffolding' is a CLI tool to generate golang project scaffolding",
 	Long:  `'go-scaffolding' is a CLI tool to generate golang project scaffolding.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -32,37 +40,55 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	// global flags
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is .go-scaffolding.yaml)")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "config file (default is .go-scaffolding.yaml)")
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.go-scaffolding.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// local flags
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
+		// オプションで渡された設定ファイルを探す
+		verboseLog("set config file", cfgFile)
+		workDir, err := os.Getwd()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".go-scaffolding" (without extension).
-		viper.AddConfigPath(home)
+		f := filepath.Join(workDir, cfgFile)
+
+		viper.SetConfigFile(f)
+	} else {
+		// デフォルト挙動として作業ディレクトリから設定ファイルを探す
+		verboseLog("default config file", cfgFile)
+		workDir, err := os.Getwd()
+		cobra.CheckErr(err)
+
+		viper.AddConfigPath(workDir)
 		viper.SetConfigType("yaml")
 		viper.SetConfigName(".go-scaffolding")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	// 設定ファイルを読み込む
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error: ", err)
+		os.Exit(1)
 	}
+	fmt.Println("Using config file:", viper.ConfigFileUsed())
+
+	if err := viper.Unmarshal(&config); err != nil {
+		fmt.Fprintln(os.Stderr, "Error: ", err)
+		os.Exit(1)
+	}
+	verboseLog("config", config)
+}
+
+func verboseLog(a ...any) {
+	if !verbose {
+		return
+	}
+
+	fmt.Print("[LOG]: ")
+	fmt.Println(a...)
 }
