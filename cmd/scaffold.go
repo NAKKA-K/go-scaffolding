@@ -1,6 +1,5 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
@@ -13,13 +12,8 @@ import (
 // scaffoldCmd represents the scaffold command
 var scaffoldCmd = &cobra.Command{
 	Use:   "scaffold",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "一番最初の雛形を生成する.",
+	Long:  `新しいリソースのAPIを作り始めたい時に実行するコマンドです.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("scaffold called")
 	},
