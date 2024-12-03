@@ -1,6 +1,7 @@
 # Product ignore
 go-scaffolding
 .go-scaffolding.yaml
+template/
 
 # IDEA
 .idea/
