@@ -1,8 +1,9 @@
+# Product ignore
+go-scaffolding
+.go-scaffolding.yaml
+
 # IDEA
 .idea/
-
-# go build
-go-scaffolding
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,macos
