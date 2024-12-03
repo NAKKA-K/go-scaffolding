@@ -1,3 +1,6 @@
+# IDEA
+.idea/
+
 # go build
 go-scaffolding
 
