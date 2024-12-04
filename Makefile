@@ -3,8 +3,8 @@ go-scaffolding: main.go
 
 clean:
 	-@rm go-scaffolding
-	-@(cd ../ && git clean -dfn)
-	-@echo '`cd ../ && git clean -df && cd -` を実行すれば上記のファイル群が削除されます。'
+	-@echo ''
+	-@git clean -dfn && echo '`git clean -df` を実行すれば上記のファイル群が削除されます。'
 
 .PHONY: run help test
 

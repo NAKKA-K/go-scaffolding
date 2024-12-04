@@ -118,6 +118,7 @@ func writeFileByTemplate(templateFilePath string, outputPath string) error {
 	}
 	defer outputFile.Close()
 
+	// TODO: caseNamesだけではなく、埋め込み用のデータを増やす. ex) {{.GqlModel1}}.{{.Resource.PascalCase}} -> "resourcetable1.ResourcePascalCase"
 	// テンプレートを元にデータを埋め込み、ファイルを生成する
 	err = tmpl.Execute(outputFile, caseNames)
 	if err != nil {
