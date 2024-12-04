@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 
 	"github.com/NAKKA-K/go-scaffolding/internal/logging"
@@ -56,44 +56,73 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	}
 	logging.Verbose(verbose, "Abs template directory: %s", absTemplateDir)
 
-	for templateFileName, outputPath := range config.Run.Output {
-		templateFilePath := filepath.Join(absTemplateDir, templateFileName)
-		logging.Verbose(verbose, "Template file path: %s", templateFilePath)
-
-		tmpl, err := template.ParseFiles(templateFilePath)
-		if err != nil {
-			log.Printf("Failed to parse template %s: %v", templateFilePath, err)
+	for templateFileName, outputPathTmpl := range config.Run.Output {
+		// ディレクトリ名やファイル名に動的な名前が含まれることがあるので置換する
+		outputPath, err := generateStrByTemplate(outputPathTmpl, caseNames)
+		if err != nil || outputPath == nil {
+			log.Printf("Failed to generate output path by output path template %s: %v", outputPathTmpl, err)
 			continue
 		}
-
-		// ディレクトリ名やファイル名にリソース名が含まれることがあるので、`{resource}`をリソース名に置換する
-		outputPath = strings.Replace(outputPath, "{resource}", caseNames.SnakeCase, -1)
 		logging.Verbose(verbose, "Output path: %s", outputPath)
 
-		// 出力先のディレクトリを生成する
-		outputDir := filepath.Dir(outputPath)
-		if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
-			log.Printf("Failed to create directory %s: %v", outputDir, err)
+		templateFilePath := filepath.Join(absTemplateDir, templateFileName)
+		if err := writeFileByTemplate(templateFilePath, *outputPath); err != nil {
+			log.Printf("Failed to write file by template %s -> %s: %v", templateFilePath, outputPath, err)
 			continue
-		}
-
-		// 出力ファイルを作成する
-		outputFile, err := os.Create(outputPath)
-		if err != nil {
-			log.Printf("Could not create output file %s: %v", outputPath, err)
-			continue
-		}
-		defer outputFile.Close() // リソースがリークしている可能性があります。'defer' が 'for' ループで呼び出されています
-
-		err = tmpl.Execute(outputFile, caseNames)
-		if err != nil {
-			log.Printf("Failed to execute template %s -> %s: %v", templateFilePath, outputPath, err)
 		}
 
 		fmt.Printf("Generated: \"%s\" -> \"%s\"\n", templateFilePath, outputPath)
 	}
 
 	logging.Verbose(verbose, "Complete.")
+
+	return nil
+}
+
+func generateStrByTemplate(textTmpl string, data any) (*string, error) {
+	// テンプレートを解析
+	t, err := template.New("text").Parse(textTmpl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse template: %v", err)
+	}
+
+	// bytes.Bufferを使用してテンプレート出力をバッファに書き込み
+	var buf bytes.Buffer
+	if err := t.Execute(&buf, data); err != nil {
+		return nil, fmt.Errorf("failed to execute template: %v", err)
+	}
+
+	// バッファの内容を文字列として取得
+	res := buf.String()
+	return &res, nil
+}
+
+func writeFileByTemplate(templateFilePath string, outputPath string) error {
+	logging.Verbose(verbose, "Template file path: %s", templateFilePath)
+
+	tmpl, err := template.ParseFiles(templateFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to parse template %s: %v", templateFilePath, err)
+	}
+
+	// 出力先のディレクトリを生成する
+	outputDir := filepath.Dir(outputPath)
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create directory %s: %v", outputDir, err)
+	}
+
+	// 出力ファイルを作成する
+	outputFile, err := os.Create(outputPath)
+	if err != nil {
+		return fmt.Errorf("could not create output file %s: %v", outputPath, err)
+	}
+	defer outputFile.Close()
+
+	// テンプレートを元にデータを埋め込み、ファイルを生成する
+	err = tmpl.Execute(outputFile, caseNames)
+	if err != nil {
+		return fmt.Errorf("failed to execute template %s -> %s: %v", templateFilePath, outputPath, err)
+	}
 
 	return nil
 }
