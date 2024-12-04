@@ -4,11 +4,10 @@ import (
 	"fmt"
 )
 
-func Verbose(verbose bool, a ...any) {
+func Verbose(verbose bool, format string, a ...any) {
 	if !verbose {
 		return
 	}
 
-	fmt.Print("[LOG]: ")
-	fmt.Println(a...)
+	fmt.Printf("[LOG]: "+format+"\n", a...)
 }

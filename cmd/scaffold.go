@@ -54,7 +54,7 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatalf("Failed to determine absolute path: %v", err)
 	}
-	logging.Verbose(verbose, "Abs template directory: %s", absTemplateDir)
+	logging.Verbose(verbose, "Abs template directory: %s\n", absTemplateDir)
 
 	for templateFileName, outputPathTmpl := range config.Run.Output {
 		// ディレクトリ名やファイル名に動的な名前が含まれることがあるので置換する
@@ -63,15 +63,15 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 			log.Printf("Failed to generate output path by output path template %s: %v", outputPathTmpl, err)
 			continue
 		}
-		logging.Verbose(verbose, "Output path: %s", outputPath)
+		logging.Verbose(verbose, "Output path: %s", *outputPath)
 
 		templateFilePath := filepath.Join(absTemplateDir, templateFileName)
 		if err := writeFileByTemplate(templateFilePath, *outputPath); err != nil {
-			log.Printf("Failed to write file by template %s -> %s: %v", templateFilePath, outputPath, err)
+			log.Printf("Failed to write file by template %s -> %s: %v", templateFilePath, *outputPath, err)
 			continue
 		}
 
-		fmt.Printf("Generated: \"%s\" -> \"%s\"\n", templateFilePath, outputPath)
+		fmt.Printf("Generated: \"%s\" -> \"%s\"\n", templateFilePath, *outputPath)
 	}
 
 	logging.Verbose(verbose, "Complete.")

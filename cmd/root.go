@@ -52,7 +52,7 @@ func init() {
 func initConfig() {
 	if cfgFile != "" {
 		// オプションで渡された設定ファイルを探す
-		logging.Verbose(verbose, "set config file", cfgFile)
+		logging.Verbose(verbose, "set config file: %s", cfgFile)
 		workDir, err := os.Getwd()
 		cobra.CheckErr(err)
 
@@ -61,7 +61,7 @@ func initConfig() {
 		viper.SetConfigFile(f)
 	} else {
 		// デフォルト挙動として作業ディレクトリから設定ファイルを探す
-		logging.Verbose(verbose, "default config file", cfgFile)
+		logging.Verbose(verbose, "default config file: %s", cfgFile)
 		workDir, err := os.Getwd()
 		cobra.CheckErr(err)
 
@@ -76,10 +76,10 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalln("Error: ", err)
 	}
-	logging.Verbose(verbose, "Using config file:", viper.ConfigFileUsed())
+	logging.Verbose(verbose, "Using config file: %s", viper.ConfigFileUsed())
 
 	if err := viper.Unmarshal(&config); err != nil {
 		log.Fatalln("Error: ", err)
 	}
-	logging.Verbose(verbose, "config", config)
+	logging.Verbose(verbose, "config: %+v", config)
 }
