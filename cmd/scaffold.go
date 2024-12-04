@@ -8,6 +8,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/NAKKA-K/go-scaffolding/internal/logging"
 	"github.com/NAKKA-K/go-scaffolding/internal/naming"
 	"github.com/spf13/cobra"
 )
@@ -41,8 +42,6 @@ func init() {
 }
 
 func executeScaffold(cmd *cobra.Command, args []string) error {
-	fmt.Println("scaffold call")
-
 	// :=をするとcaseNamesがローカル変数扱いされてしまうので、再代入で書くために事前定義
 	var err error
 	caseNames, err = naming.NewCaseNames(resource)
@@ -55,9 +54,11 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatalf("Failed to determine absolute path: %v", err)
 	}
+	logging.Verbose(verbose, "Abs template directory: %s", absTemplateDir)
 
 	for templateFileName, outputPath := range config.Run.Output {
 		templateFilePath := filepath.Join(absTemplateDir, templateFileName)
+		logging.Verbose(verbose, "Template file path: %s", templateFilePath)
 
 		tmpl, err := template.ParseFiles(templateFilePath)
 		if err != nil {
@@ -67,6 +68,7 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 
 		// ディレクトリ名やファイル名にリソース名が含まれることがあるので、`{resource}`をリソース名に置換する
 		outputPath = strings.Replace(outputPath, "{resource}", caseNames.SnakeCase, -1)
+		logging.Verbose(verbose, "Output path: %s", outputPath)
 
 		// 出力先のディレクトリを生成する
 		outputDir := filepath.Dir(outputPath)
@@ -88,10 +90,10 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 			log.Printf("Failed to execute template %s -> %s: %v", templateFilePath, outputPath, err)
 		}
 
-		fmt.Printf("Template %s has been processed and saved to %s\n", templateFilePath, outputPath)
+		fmt.Printf("Generated: \"%s\" -> \"%s\"\n", templateFilePath, outputPath)
 	}
 
-	fmt.Println("scaffold end")
+	logging.Verbose(verbose, "Complete.")
 
 	return nil
 }

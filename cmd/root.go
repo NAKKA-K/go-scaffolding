@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/NAKKA-K/go-scaffolding/internal/logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,7 +35,7 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
-		os.Exit(1)
+		log.Fatalln("Error: ", err)
 	}
 }
 
@@ -51,7 +52,7 @@ func init() {
 func initConfig() {
 	if cfgFile != "" {
 		// オプションで渡された設定ファイルを探す
-		verboseLog("set config file", cfgFile)
+		logging.Verbose(verbose, "set config file", cfgFile)
 		workDir, err := os.Getwd()
 		cobra.CheckErr(err)
 
@@ -60,7 +61,7 @@ func initConfig() {
 		viper.SetConfigFile(f)
 	} else {
 		// デフォルト挙動として作業ディレクトリから設定ファイルを探す
-		verboseLog("default config file", cfgFile)
+		logging.Verbose(verbose, "default config file", cfgFile)
 		workDir, err := os.Getwd()
 		cobra.CheckErr(err)
 
@@ -73,23 +74,12 @@ func initConfig() {
 
 	// 設定ファイルを読み込む
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintln(os.Stderr, "Error: ", err)
-		os.Exit(1)
+		log.Fatalln("Error: ", err)
 	}
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
+	logging.Verbose(verbose, "Using config file:", viper.ConfigFileUsed())
 
 	if err := viper.Unmarshal(&config); err != nil {
-		fmt.Fprintln(os.Stderr, "Error: ", err)
-		os.Exit(1)
+		log.Fatalln("Error: ", err)
 	}
-	verboseLog("config", config)
-}
-
-func verboseLog(a ...any) {
-	if !verbose {
-		return
-	}
-
-	fmt.Print("[LOG]: ")
-	fmt.Println(a...)
+	logging.Verbose(verbose, "config", config)
 }
