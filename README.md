@@ -29,3 +29,6 @@ run:
 ```
 make run RESOURCE=resource_snake_case
 ```
+
+## 展望
+* 外から変数を渡せるようにする
