@@ -6,11 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func ptrSnakeCaseName(s string) *SnakeCaseName {
-	n := SnakeCaseName(s)
-	return &n
-}
-
 func TestIsValidSnakeCase_NoErr(t *testing.T) {
 	tests := []struct {
 		s string
@@ -54,22 +49,29 @@ func TestIsValidSnakeCase_Err(t *testing.T) {
 	}
 }
 
-func TestNewSnakeCaseName(t *testing.T) {
+func TestNewCaseNames(t *testing.T) {
 	tests := []struct {
 		s    string
-		want *SnakeCaseName
+		want *CaseNames
 		err  error
 	}{
 		{
-			s:    "snake_case",
-			want: ptrSnakeCaseName("snake_case"),
-			err:  nil,
+			s: "snake_case",
+			want: &CaseNames{
+				SnakeCase:      "snake_case",
+				CamelCase:      "snakeCase",
+				PascalCase:     "SnakeCase",
+				ConnectionCase: "snakecase",
+				ConstantCase:   "SNAKE_CASE",
+				KebabCase:      "snake-case",
+			},
+			err: nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.s, func(t *testing.T) {
-			n, err := NewSnakeCaseName(tt.s)
+			n, err := NewCaseNames(tt.s)
 			assert.Equal(t, n, tt.want)
 			assert.Equal(t, err, tt.err)
 		})

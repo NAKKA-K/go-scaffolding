@@ -9,16 +9,33 @@ import (
 	"golang.org/x/text/language"
 )
 
+type CaseNames struct {
+	SnakeCase      string
+	CamelCase      string
+	PascalCase     string
+	ConnectionCase string
+	ConstantCase   string
+	KebabCase      string
+}
+
 // SnakeCaseName 命名規則を変換するために、基準となる規則としてスネークケースを利用する
 type SnakeCaseName string
 
-func NewSnakeCaseName(s string) (*SnakeCaseName, error) {
+func NewCaseNames(s string) (*CaseNames, error) {
 	if ok := IsValidSnakeCase(s); !ok {
+		fmt.Println(ok)
 		return nil, fmt.Errorf("invalid name, must snake case")
 	}
 
 	n := SnakeCaseName(s)
-	return &n, nil
+	return &CaseNames{
+		SnakeCase:      n.SnakeCase(),
+		CamelCase:      n.CamelCase(),
+		PascalCase:     n.PascalCase(),
+		ConnectionCase: n.ConnectionCase(),
+		ConstantCase:   n.ConstantCase(),
+		KebabCase:      n.KebabCase(),
+	}, nil
 }
 
 var snakeCasePattern = regexp.MustCompile(`^[a-z]+(_[a-z]+)*$`)
