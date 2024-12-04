@@ -8,13 +8,14 @@ clean:
 
 .PHONY: run help test
 
+RESOURCE :=
+
 run:
-	go run main.go
+	go run main.go -r $(RESOURCE)
 
 help:
 	go run main.go -h
 
+test: RESOURCE=companion_ad
 test:
-	go run main.go scaffold -v -r companion_ad
-	-@echo ""
-	go run main.go scaffold -v -r companion_ad --config .go-scaffolding.yaml
+	go run main.go scaffold -v -r $(RESOURCE) --config .go-scaffolding.yaml
