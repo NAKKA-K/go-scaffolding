@@ -84,13 +84,13 @@ func generateStrByTemplate(textTmpl string, data any) (*string, error) {
 	// テンプレートを解析
 	t, err := template.New("text").Parse(textTmpl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse template: %v", err)
+		return nil, fmt.Errorf("failed to parse template: %w", err)
 	}
 
 	// bytes.Bufferを使用してテンプレート出力をバッファに書き込み
 	var buf bytes.Buffer
 	if err := t.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("failed to execute template: %v", err)
+		return nil, fmt.Errorf("failed to execute template: %w", err)
 	}
 
 	// バッファの内容を文字列として取得
@@ -103,19 +103,19 @@ func writeFileByTemplate(templateFilePath string, outputPath string) error {
 
 	tmpl, err := template.ParseFiles(templateFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to parse template %s: %v", templateFilePath, err)
+		return fmt.Errorf("failed to parse template %s: %w", templateFilePath, err)
 	}
 
 	// 出力先のディレクトリを生成する
 	outputDir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create directory %s: %v", outputDir, err)
+		return fmt.Errorf("failed to create directory %s: %w", outputDir, err)
 	}
 
 	// 出力ファイルを作成する
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
-		return fmt.Errorf("could not create output file %s: %v", outputPath, err)
+		return fmt.Errorf("could not create output file %s: %w", outputPath, err)
 	}
 	defer outputFile.Close()
 
@@ -123,7 +123,7 @@ func writeFileByTemplate(templateFilePath string, outputPath string) error {
 	// テンプレートを元にデータを埋め込み、ファイルを生成する
 	err = tmpl.Execute(outputFile, caseNames)
 	if err != nil {
-		return fmt.Errorf("failed to execute template %s -> %s: %v", templateFilePath, outputPath, err)
+		return fmt.Errorf("failed to execute template %s -> %s: %w", templateFilePath, outputPath, err)
 	}
 
 	return nil
