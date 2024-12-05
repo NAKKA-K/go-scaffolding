@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/spf13/cobra"
+
 	"github.com/NAKKA-K/go-scaffolding/internal/logging"
 	"github.com/NAKKA-K/go-scaffolding/internal/naming"
-	"github.com/spf13/cobra"
 )
 
 var (
