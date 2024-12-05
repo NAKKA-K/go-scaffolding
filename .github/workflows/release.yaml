@@ -1,33 +1,33 @@
-name: Release CLI to the GitHub Release
+name: goreleaser
+
 on:
   workflow_dispatch:
-    inputs:
-      method:
-        description: |
-          Which number to increment in the semantic versioning.
-          Set 'major', 'minor' or 'patch'.
-        required: true
+
+permissions:
+  contents: write
 
 jobs:
-  release:
-    name: Release
+  goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Sources
-        uses: actions/checkout@v2
-      - name: Bump-up Semantic Version
-        uses: kyoh86/git-vertag-action@v1.1
+      -
+        name: Checkout
+        uses: actions/checkout@v4
         with:
-          # method: "major", "minor" or "patch" to update tag with semver
-          method: "${{ github.event.inputs.method }}"
-      - uses: actions/setup-go@v4
+          fetch-depth: 0
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          go-version-file: ./go.mod
-          cache: true
-          cache-dependency-path: ./go.sum
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          # 'latest', 'nightly', or a semver
+          version: '~> v2'
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: release --rm-dist
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
