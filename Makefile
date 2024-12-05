@@ -1,5 +1,7 @@
 BIN := $(CURDIR)/tools/_bin
 
+.PHONY: lint fix test clean run help
+
 $(BIN)/%: go.mod go.sum tools/go.mod tools/go.sum
 	cd tools && cat tools.go | awk -F'"' '/_/ {print $$2}' | grep $* | GOBIN=$(BIN) xargs -tI {} go install {}
 
@@ -9,6 +11,9 @@ lint: $(BIN)/golangci-lint .golangci.yaml
 fix: $(BIN)/golangci-lint .golangci.yaml
 	$< run --fix
 
+test:
+	go test -v ./...
+
 go-scaffolding: main.go
 	go build
 
@@ -17,8 +22,6 @@ clean:
 	-@echo ''
 	-@git clean -dfn && echo '`git clean -df` を実行すれば上記のファイル群が削除されます。'
 
-.PHONY: run help test
-
 RESOURCE :=
 
 run:
@@ -26,8 +29,4 @@ run:
 
 help:
 	go run main.go -h
-
-test: RESOURCE=resource_snake_case
-test:
-	go run main.go scaffold -v -r $(RESOURCE) --config .go-scaffolding.yaml
 

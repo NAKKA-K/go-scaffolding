@@ -1,0 +1,39 @@
+name: golang
+
+on:
+  pull_request:
+    paths:
+      - "*.go"
+      - ".github/workflows/golang.yaml"
+
+jobs:
+  api-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+          cache: true
+          cache-dependency-path: ./go.sum
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          skip-pkg-cache: true
+          skip-build-cache: true
+          args: --timeout=5m
+
+  api-test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/aws
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+          cache: true
+          cache-dependency-path: ./go.sum
+      - name: run tests
+        run: make test
