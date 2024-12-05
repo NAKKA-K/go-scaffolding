@@ -1,0 +1,6 @@
+builds:
+  - ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+  flags:
+    - -trimpath
