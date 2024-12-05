@@ -1,3 +1,14 @@
+BIN := $(CURDIR)/tools/_bin
+
+$(BIN)/%: go.mod go.sum tools/go.mod tools/go.sum
+	cd tools && cat tools.go | awk -F'"' '/_/ {print $$2}' | grep $* | GOBIN=$(BIN) xargs -tI {} go install {}
+
+lint: $(BIN)/golangci-lint .golangci.yaml
+	$< run
+
+fix: $(BIN)/golangci-lint .golangci.yaml
+	$< run --fix
+
 go-scaffolding: main.go
 	go build
 
@@ -16,6 +27,7 @@ run:
 help:
 	go run main.go -h
 
-test: RESOURCE=companion_ad
+test: RESOURCE=resource_snake_case
 test:
 	go run main.go scaffold -v -r $(RESOURCE) --config .go-scaffolding.yaml
+

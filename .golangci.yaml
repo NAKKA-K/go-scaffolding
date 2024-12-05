@@ -1,0 +1,30 @@
+linters-settings:
+  dupl:
+    threshold: 100
+  funlen:
+    lines: 100
+    statements: 51
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/NAKKA-K)
+    skip-generated: false
+    custom-order: true
+  gosec:
+    excludes:
+      - G115
+
+linters:
+  enable:
+    - dupl
+    - errorlint
+    - forcetypeassert
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gosec
+    - unused
+    - staticcheck
