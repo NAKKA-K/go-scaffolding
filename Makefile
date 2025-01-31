@@ -25,7 +25,7 @@ clean:
 RESOURCE :=
 
 run:
-	go run main.go -r $(RESOURCE)
+	go run main.go scaffold -r $(RESOURCE)
 
 help:
 	go run main.go -h
