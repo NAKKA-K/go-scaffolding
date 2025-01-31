@@ -24,6 +24,7 @@ var scaffoldCmd = &cobra.Command{
 	Use:   "scaffold",
 	Short: "一番最初の雛形を生成する.",
 	Long:  `新しいリソースのAPIを作り始めたい時に実行するコマンドです.`,
+	Args:  cobra.ExactArgs(1), // 1つの引数を必須にする
 	RunE:  executeScaffold,
 }
 
@@ -41,7 +42,19 @@ func init() {
 	// 例えばGraphQLのスキーマから生成されたmodelや、DBのスキーマから生成されたentを利用する場合など
 }
 
+func validArgs(args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("expected 1 argument, but got %d", len(args))
+	}
+
+	return nil
+}
+
 func executeScaffold(cmd *cobra.Command, args []string) error {
+	if err := validArgs(args); err != nil {
+		log.Fatalf("Invalid arguments: %v", err)
+	}
+
 	// :=をするとcaseNamesがローカル変数扱いされてしまうので、再代入で書くために事前定義
 	var err error
 	caseNames, err = naming.NewCaseNames(resource)
