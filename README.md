@@ -30,5 +30,14 @@ run:
 make run RESOURCE=resource_snake_case
 ```
 
+## docs
+
+* SnakeCase: snake_case
+* CamelCase: camelCase
+* PascalCase: PascalCase
+* ConnectionCase: 
+* ConstantCase: CONSTANT_CASE
+* KebabCase: kebab-case
+
 ## 展望
 * 外から変数を渡せるようにする
