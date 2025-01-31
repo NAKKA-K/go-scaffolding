@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"text/template"
 
+	"github.com/NAKKA-K/go-scaffolding/internal/tmpl"
 	"github.com/spf13/cobra"
 
 	"github.com/NAKKA-K/go-scaffolding/internal/logging"
@@ -57,9 +57,10 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	}
 	logging.Verbose(verbose, "Abs template directory: %s\n", absTemplateDir)
 
+	embedder := tmpl.NewEmbedder(caseNames.ToMap())
 	for templateFileName, outputPathTmpl := range config.Run.Output {
 		// ディレクトリ名やファイル名に動的な名前が含まれることがあるので置換する
-		outputPath, err := generateStrByTemplate(outputPathTmpl, caseNames)
+		outputPath, err := embedder.GenerateByStrTmpl(outputPathTmpl)
 		if err != nil || outputPath == nil {
 			log.Printf("Failed to generate output path by output path template %s: %v", outputPathTmpl, err)
 			continue
@@ -80,28 +81,10 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func generateStrByTemplate(textTmpl string, data any) (*string, error) {
-	// テンプレートを解析
-	t, err := template.New("text").Parse(textTmpl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse template: %w", err)
-	}
-
-	// bytes.Bufferを使用してテンプレート出力をバッファに書き込み
-	var buf bytes.Buffer
-	if err := t.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("failed to execute template: %w", err)
-	}
-
-	// バッファの内容を文字列として取得
-	res := buf.String()
-	return &res, nil
-}
-
 func writeFileByTemplate(templateFilePath string, outputPath string) error {
 	logging.Verbose(verbose, "Template file path: %s", templateFilePath)
 
-	tmpl, err := template.ParseFiles(templateFilePath)
+	tpl, err := template.ParseFiles(templateFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to parse template %s: %w", templateFilePath, err)
 	}
@@ -121,7 +104,7 @@ func writeFileByTemplate(templateFilePath string, outputPath string) error {
 
 	// TODO: caseNamesだけではなく、埋め込み用のデータを増やす. ex) {{.GqlModel1}}.{{.Resource.PascalCase}} -> "resourcetable1.ResourcePascalCase"
 	// テンプレートを元にデータを埋め込み、ファイルを生成する
-	err = tmpl.Execute(outputFile, caseNames)
+	err = tpl.Execute(outputFile, caseNames)
 	if err != nil {
 		return fmt.Errorf("failed to execute template %s -> %s: %w", templateFilePath, outputPath, err)
 	}

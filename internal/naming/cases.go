@@ -18,6 +18,17 @@ type CaseNames struct {
 	KebabCase      string
 }
 
+func (n *CaseNames) ToMap() map[string]string {
+	return map[string]string{
+		"SnakeCase":      n.SnakeCase,
+		"CamelCase":      n.CamelCase,
+		"PascalCase":     n.PascalCase,
+		"ConnectionCase": n.ConnectionCase,
+		"ConstantCase":   n.ConstantCase,
+		"KebabCase":      n.KebabCase,
+	}
+}
+
 // SnakeCaseName 命名規則を変換するために、基準となる規則としてスネークケースを利用する
 type SnakeCaseName string
 

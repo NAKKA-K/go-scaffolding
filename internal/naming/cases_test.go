@@ -6,6 +6,71 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewCaseNames(t *testing.T) {
+	tests := []struct {
+		s    string
+		want *CaseNames
+		err  error
+	}{
+		{
+			s: "snake_case",
+			want: &CaseNames{
+				SnakeCase:      "snake_case",
+				CamelCase:      "snakeCase",
+				PascalCase:     "SnakeCase",
+				ConnectionCase: "snakecase",
+				ConstantCase:   "SNAKE_CASE",
+				KebabCase:      "snake-case",
+			},
+			err: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.s, func(t *testing.T) {
+			n, err := NewCaseNames(tt.s)
+			assert.Equal(t, n, tt.want)
+			assert.Equal(t, err, tt.err)
+		})
+	}
+}
+
+func TestCaseNames_ToMap(t *testing.T) {
+	tests := []struct {
+		name  string
+		input CaseNames
+		want  map[string]string
+	}{
+		{
+			name: "正常にmapが生成される",
+			input: CaseNames{
+				SnakeCase:      "snake_case",
+				CamelCase:      "snakeCase",
+				PascalCase:     "SnakeCase",
+				ConnectionCase: "snakecase",
+				ConstantCase:   "SNAKE_CASE",
+				KebabCase:      "snake-case",
+			},
+			want: map[string]string{
+				"SnakeCase":      "snake_case",
+				"CamelCase":      "snakeCase",
+				"PascalCase":     "SnakeCase",
+				"ConnectionCase": "snakecase",
+				"ConstantCase":   "SNAKE_CASE",
+				"KebabCase":      "snake-case",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.input.ToMap(); !assert.Equal(t, got, tt.want) {
+				t.Errorf("Name.ToMap() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestIsValidSnakeCase_NoErr(t *testing.T) {
 	tests := []struct {
 		s string
@@ -45,35 +110,6 @@ func TestIsValidSnakeCase_Err(t *testing.T) {
 		t.Run(tt.s, func(t *testing.T) {
 			ok := IsValidSnakeCase(tt.s)
 			assert.False(t, ok)
-		})
-	}
-}
-
-func TestNewCaseNames(t *testing.T) {
-	tests := []struct {
-		s    string
-		want *CaseNames
-		err  error
-	}{
-		{
-			s: "snake_case",
-			want: &CaseNames{
-				SnakeCase:      "snake_case",
-				CamelCase:      "snakeCase",
-				PascalCase:     "SnakeCase",
-				ConnectionCase: "snakecase",
-				ConstantCase:   "SNAKE_CASE",
-				KebabCase:      "snake-case",
-			},
-			err: nil,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.s, func(t *testing.T) {
-			n, err := NewCaseNames(tt.s)
-			assert.Equal(t, n, tt.want)
-			assert.Equal(t, err, tt.err)
 		})
 	}
 }
