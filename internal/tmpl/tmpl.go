@@ -50,16 +50,10 @@ func (e *Embedder) WriteFileByTemplate(templateFilePath string, outputPath strin
 		return fmt.Errorf("failed to parse template %s: %w", templateFilePath, err)
 	}
 
-	// 出力先のディレクトリを生成する
-	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create directory %s: %w", outputDir, err)
-	}
-
 	// 出力ファイルを作成する
-	outputFile, err := os.Create(outputPath)
+	outputFile, err := e.CreateFile(outputPath)
 	if err != nil {
-		return fmt.Errorf("could not create output file %s: %w", outputPath, err)
+		return fmt.Errorf("failed to create output file: %w", err)
 	}
 	defer outputFile.Close()
 
@@ -71,4 +65,20 @@ func (e *Embedder) WriteFileByTemplate(templateFilePath string, outputPath strin
 	}
 
 	return nil
+}
+
+func (*Embedder) CreateFile(outputPath string) (*os.File, error) {
+	// 出力先のディレクトリを生成する
+	outputDir := filepath.Dir(outputPath)
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		return nil, fmt.Errorf("failed to create directory %s: %w", outputDir, err)
+	}
+
+	// 出力ファイルを作成する
+	outputFile, err := os.Create(outputPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create file %s: %w", outputPath, err)
+	}
+
+	return outputFile, nil
 }
