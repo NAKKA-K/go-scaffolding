@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"text/template"
 
 	"github.com/NAKKA-K/go-scaffolding/internal/tmpl"
 	"github.com/spf13/cobra"
@@ -57,7 +56,7 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	}
 	logging.Verbose(verbose, "Abs template directory: %s\n", absTemplateDir)
 
-	embedder := tmpl.NewEmbedder(caseNames.ToMap())
+	embedder := tmpl.NewEmbedder(caseNames.ToMap(), verbose)
 	for templateFileName, outputPathTmpl := range config.Run.Output {
 		// ディレクトリ名やファイル名に動的な名前が含まれることがあるので置換する
 		outputPath, err := embedder.GenerateByStrTmpl(outputPathTmpl)
@@ -68,7 +67,7 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 		logging.Verbose(verbose, "Output path: %s", *outputPath)
 
 		templateFilePath := filepath.Join(absTemplateDir, templateFileName)
-		if err := writeFileByTemplate(templateFilePath, *outputPath); err != nil {
+		if err := embedder.WriteFileByTemplate(templateFilePath, *outputPath); err != nil {
 			log.Printf("Failed to write file by template %s -> %s: %v", templateFilePath, *outputPath, err)
 			continue
 		}
@@ -77,37 +76,6 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 	}
 
 	logging.Verbose(verbose, "Complete.")
-
-	return nil
-}
-
-func writeFileByTemplate(templateFilePath string, outputPath string) error {
-	logging.Verbose(verbose, "Template file path: %s", templateFilePath)
-
-	tpl, err := template.ParseFiles(templateFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to parse template %s: %w", templateFilePath, err)
-	}
-
-	// 出力先のディレクトリを生成する
-	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create directory %s: %w", outputDir, err)
-	}
-
-	// 出力ファイルを作成する
-	outputFile, err := os.Create(outputPath)
-	if err != nil {
-		return fmt.Errorf("could not create output file %s: %w", outputPath, err)
-	}
-	defer outputFile.Close()
-
-	// TODO: caseNamesだけではなく、埋め込み用のデータを増やす. ex) {{.GqlModel1}}.{{.Resource.PascalCase}} -> "resourcetable1.ResourcePascalCase"
-	// テンプレートを元にデータを埋め込み、ファイルを生成する
-	err = tpl.Execute(outputFile, caseNames)
-	if err != nil {
-		return fmt.Errorf("failed to execute template %s -> %s: %w", templateFilePath, outputPath, err)
-	}
 
 	return nil
 }
