@@ -13,7 +13,7 @@ Golangプロジェクトで使用するscaffoldingツール
 
 ### config
 `.go-scaffolding.yaml`
-```
+```yaml
 api:
   template-dir: 'template/api/'
   output:
@@ -32,7 +32,8 @@ api_test:
 ```
 
 ### run
-```
+
+```shell
 go-scaffolding scaffold api -r resource_snake_case
 go-scaffolding scaffold api_test -r resource_snake_case
 ```
@@ -77,7 +78,7 @@ make o # テスト実行
 ### release
 gitでタグを打ち、GitHubにpushすれば自動でgoreleaserのGitHubActionsが発火しリリースされます。
 
-```
+```shell
 git tag v0.3.0
 git push --tags
 ```
