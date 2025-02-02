@@ -30,3 +30,6 @@ run:
 help:
 	go run main.go -h
 
+o:
+	go run main.go scaffold api_test -r test_resource
+
