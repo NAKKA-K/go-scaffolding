@@ -10,6 +10,10 @@ import (
 	"github.com/NAKKA-K/go-scaffolding/internal/logging"
 )
 
+var (
+	ErrExistsFile = fmt.Errorf("file already exists")
+)
+
 type Embedder struct {
 	variablesMap map[string]string
 	verbose      bool
@@ -67,7 +71,7 @@ func (e *Embedder) WriteFileByTemplate(templateFilePath string, outputPath strin
 	return nil
 }
 
-func (*Embedder) CreateFile(outputPath string) (*os.File, error) {
+func (e *Embedder) CreateFile(outputPath string) (*os.File, error) {
 	// 出力先のディレクトリを生成する
 	outputDir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
@@ -75,10 +79,21 @@ func (*Embedder) CreateFile(outputPath string) (*os.File, error) {
 	}
 
 	// 出力ファイルを作成する
+	if e.existsFile(outputPath) {
+		return nil, ErrExistsFile
+	}
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create file %s: %w", outputPath, err)
 	}
 
 	return outputFile, nil
+}
+
+func (*Embedder) existsFile(filePath string) bool {
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil
 }

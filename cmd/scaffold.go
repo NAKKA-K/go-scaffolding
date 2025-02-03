@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -75,7 +76,7 @@ func executeScaffold(cmd *cobra.Command, args []string) error {
 
 		templateFilePath := filepath.Join(absTemplateDir, templateFileName)
 		if err := embedder.WriteFileByTemplate(templateFilePath, *outputPath); err != nil {
-			log.Printf("Failed to write file by template %s -> %s: %v", templateFilePath, *outputPath, err)
+			log.Printf("Skip file by template \n\t%s -> %s: \n\t%v", templateFilePath, *outputPath, err)
 			continue
 		}
 
@@ -116,7 +117,7 @@ func initConfig(args []string) {
 		if err != nil {
 			log.Fatalf("failed to unmarshal key %s: %v", sectionName, err)
 		}
-		fmt.Printf("Section %s found: %+v\n", sectionName, commandConfig)
+		fmt.Printf("Section %s found: %# v\n\n", sectionName, pretty.Formatter(commandConfig))
 	} else {
 		log.Fatalf("Section %s not found in config yaml\n", sectionName)
 	}
